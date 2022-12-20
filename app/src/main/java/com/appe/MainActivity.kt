@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +36,9 @@ class MainActivity : AppCompatActivity() {
 
         // SwipeToRefresh
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeToRefresh)
+        swipeRefresh.setColorSchemeColors(
+            ContextCompat.getColor(this, R.color.blue_500)
+        )
         swipeRefresh.setOnRefreshListener {
             updateData()
         }
@@ -71,27 +75,26 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.tbRefresh -> updateData()
-//            R.id.tbShow -> listSurah()
-//            R.id.tbRefresh -> Toast.makeText(this@MainActivity, "Ini untuk Refresh wak!!", Toast.LENGTH_LONG).show()
-//            R.id.tbShow -> Toast.makeText(this@MainActivity, "Ini untuk Api wak!!", Toast.LENGTH_LONG).show()
         }
         return true
     }
 
     private fun updateData(){
-        setTheme(R.style.splashScreenTheme)
+        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeToRefresh)
+        swipeRefresh.isRefreshing = true
         lifecycleScope.launchWhenStarted {
-
             val response = try {
                 RetrofitInstance.api.getSurah()
             } catch (e: IOException) {
                 val surah = RetrofitInstance.api.getSurah()
                 Log.e("MainActivity", surah.body()!!.toString())
-                setTheme(R.style.Theme_AppE)
+                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             } catch (e: HttpException) {
                 Log.e("MainActivity", "HttpException, Salah Link dak wak??, tak ade response")
-                setTheme(R.style.Theme_AppE)
+                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             }
 
@@ -102,9 +105,7 @@ class MainActivity : AppCompatActivity() {
                             item ->
                         db.surahDao().insertSurah(item)
                     }
-                    finish()
-                    val activityAwal = Intent(this@MainActivity, MainActivity::class.java)
-                    startActivity(activityAwal)
+                    refreshContent()
                     Toast.makeText(this@MainActivity, "Data Berhasil di Tambahkan", Toast.LENGTH_LONG).show()
                 }else{
                     db.surahDao().deleteAllSurah()
@@ -112,16 +113,20 @@ class MainActivity : AppCompatActivity() {
                             item ->
                         db.surahDao().insertSurah(item)
                     }
-                    finish()
-                    val activityAwal = Intent(this@MainActivity, MainActivity::class.java)
-                    startActivity(activityAwal)
+                    refreshContent()
                     Toast.makeText(this@MainActivity, "Data Berhasil di Update", Toast.LENGTH_LONG).show()
                 }
             } else {
                 Log.e("MainActivity", "Response gagal pulak wak.. Payah kadang")
             }
-            setTheme(R.style.Theme_AppE)
+            swipeRefresh.isRefreshing = false
         }
+    }
+
+    private fun refreshContent(){
+        val restartIntent = Intent(this@MainActivity, MainActivity::class.java)
+        startActivity(restartIntent)
+        finish()
     }
 
 //    private fun listSurah() {
