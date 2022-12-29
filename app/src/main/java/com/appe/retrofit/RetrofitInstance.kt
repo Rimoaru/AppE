@@ -7,7 +7,7 @@ object RetrofitInstance {
 
     val api: Api by lazy {
         Retrofit.Builder()
-            .baseUrl("http://web-appe.000webhostapp.com/api/")
+            .baseUrl("https://web-appe.000webhostapp.com/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(Api::class.java)

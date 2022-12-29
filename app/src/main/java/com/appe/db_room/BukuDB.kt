@@ -6,16 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Surah::class],
+    entities = [Buku::class],
     version = 1
 )
 
-abstract class SurahDB: RoomDatabase() {
+abstract class BukuDB: RoomDatabase() {
 
-    abstract fun surahDao(): SurahDao
+    abstract fun bukuDao(): BukuDao
 
     companion object {
-        @Volatile private var instance: SurahDB? = null
+        @Volatile private var instance: BukuDB? = null
         private val LOCK = Any()
 
         operator fun invoke(context: Context) = instance?: synchronized(LOCK){
@@ -26,7 +26,7 @@ abstract class SurahDB: RoomDatabase() {
 
         private fun buildDatabase(context: Context)= Room.databaseBuilder(
             context.applicationContext,
-            SurahDB::class.java,
+            BukuDB::class.java,
             "appe" // Nama Database
         ).build()
     }

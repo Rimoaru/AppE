@@ -16,27 +16,28 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.appe.db_room.BukuDB
 import com.appe.retrofit.RetrofitInstance
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 
-class MainActivity : AppCompatActivity() {
+class KelasActivity : AppCompatActivity() {
     private val db by lazy {
         BukuDB(this)
     }
-    val bukuAdapter = MainAdapter(this@MainActivity, arrayListOf())
+    val kelasAdapter = KelasAdapter(this@KelasActivity, arrayListOf())
     val linkFile = "https://web-appe.000webhostapp.com/assets/files/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        //Set normal theme
+        setTheme(R.style.Theme_AppE)
+        setContentView(R.layout.activity_kelas)
 
         // Pemanggilan Adapter
-        findViewById<RecyclerView>(R.id.rvBuku).adapter = bukuAdapter
+        findViewById<RecyclerView>(R.id.rvKelas).adapter = kelasAdapter
 
         // SwipeToRefresh
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeToRefresh)
@@ -57,17 +58,14 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             progressBar.isVisible = true
             try {
-                val kelas = intent.getStringExtra("extraKelas")
-                val kategori = intent.getStringExtra("extraKategori")
                 val buku = db.bukuDao().getBuku()
-                val filterBuku = buku.filter { it.kelas == kelas && it.kategori == kategori }
                 if(buku.isEmpty()){
                     emptyText.isVisible = true
                 }else{
-                    bukuAdapter.setData( filterBuku )
+                    kelasAdapter.setData( buku )
                 }
             } catch (e: Exception) {
-                Log.e("MainActivity", "Ade Error pulak wak.. ni ha -> $e")
+                Log.e("KelasActivity", "Ade Error pulak wak.. ni ha -> $e")
                 progressBar.isVisible = false
                 emptyText.isVisible = true
             }
@@ -94,13 +92,13 @@ class MainActivity : AppCompatActivity() {
                 RetrofitInstance.api.getBuku()
             } catch (e: IOException) {
                 val buku = RetrofitInstance.api.getBuku()
-                Log.e("MainActivity", buku.body()!!.toString())
-                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                Log.e("KelasActivity", buku.body()!!.toString())
+                Toast.makeText(this@KelasActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
                 swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             } catch (e: HttpException) {
-                Log.e("MainActivity", "HttpException, Salah Link dak wak??, tak ade response")
-                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                Log.e("KelasActivity", "HttpException, Salah Link dak wak??, tak ade response")
+                Toast.makeText(this@KelasActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
                 swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             }
@@ -115,14 +113,14 @@ class MainActivity : AppCompatActivity() {
                         val fileName = item.file
                         val path = baseContext.filesDir
                         val file = File(path, fileName)
-                        Log.e("KategoriActivity", "path directorinye wak : $path")
+                        Log.e("KelasActivity", "path directorinye wak : $path")
                         val link = linkFile + item.file
                         lifecycleScope.async(Dispatchers.IO){
                             downloadBuku(link, file)
                         }.await()
                     }
                     refreshContent()
-                    Toast.makeText(this@MainActivity, "Data Berhasil di Tambahkan", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@KelasActivity, "Data Berhasil di Tambahkan", Toast.LENGTH_LONG).show()
                 }else{
                     db.bukuDao().deleteAllBuku()
                     val path = baseContext.filesDir
@@ -133,28 +131,28 @@ class MainActivity : AppCompatActivity() {
 
                         val fileName = item.file
                         val file = File(path, fileName)
-                        Log.e("KategoriActivity", "path directorinye wak : $path")
+                        Log.e("KelasActivity", "path directorinye wak : $path")
                         val link = linkFile + item.file
                         lifecycleScope.async(Dispatchers.IO){
                             downloadBuku(link, file)
                         }.await()
                     }
                     refreshContent()
-                    Toast.makeText(this@MainActivity, "Data Berhasil di Update", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@KelasActivity, "Data Berhasil di Update", Toast.LENGTH_LONG).show()
                 }
             } else {
-                Log.e("MainActivity", "Response gagal pulak wak.. Payah kadang")
+                Log.e("KelasActivity", "Response gagal pulak wak.. Payah kadang")
             }
             swipeRefresh.isRefreshing = false
         }
     }
 
     private fun refreshContent(){
-        val intent = Intent(this@MainActivity, KelasActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-
-        startActivity(intent)
+        val restartIntent = Intent(this@KelasActivity, KelasActivity::class.java)
+        startActivity(restartIntent)
+        finish()
     }
+
 
     private fun downloadBuku(url: String, destinationFile: File): File {
         val link = URL(url)

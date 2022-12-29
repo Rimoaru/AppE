@@ -24,19 +24,19 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 
-class MainActivity : AppCompatActivity() {
+class KategoriActivity : AppCompatActivity() {
     private val db by lazy {
         BukuDB(this)
     }
-    val bukuAdapter = MainAdapter(this@MainActivity, arrayListOf())
+    val kategoriAdapter = KategoriAdapter(this@KategoriActivity, arrayListOf())
     val linkFile = "https://web-appe.000webhostapp.com/assets/files/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_kategori)
 
         // Pemanggilan Adapter
-        findViewById<RecyclerView>(R.id.rvBuku).adapter = bukuAdapter
+        findViewById<RecyclerView>(R.id.rvKategori).adapter = kategoriAdapter
 
         // SwipeToRefresh
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeToRefresh)
@@ -58,16 +58,15 @@ class MainActivity : AppCompatActivity() {
             progressBar.isVisible = true
             try {
                 val kelas = intent.getStringExtra("extraKelas")
-                val kategori = intent.getStringExtra("extraKategori")
                 val buku = db.bukuDao().getBuku()
-                val filterBuku = buku.filter { it.kelas == kelas && it.kategori == kategori }
+                val kategori = buku.filter { it.kelas == kelas }
                 if(buku.isEmpty()){
                     emptyText.isVisible = true
                 }else{
-                    bukuAdapter.setData( filterBuku )
+                    kategoriAdapter.setData( kategori )
                 }
             } catch (e: Exception) {
-                Log.e("MainActivity", "Ade Error pulak wak.. ni ha -> $e")
+                Log.e("KategoriActivity", "Ade Error pulak wak.. ni ha -> $e")
                 progressBar.isVisible = false
                 emptyText.isVisible = true
             }
@@ -94,13 +93,13 @@ class MainActivity : AppCompatActivity() {
                 RetrofitInstance.api.getBuku()
             } catch (e: IOException) {
                 val buku = RetrofitInstance.api.getBuku()
-                Log.e("MainActivity", buku.body()!!.toString())
-                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                Log.e("KategoriActivity", buku.body()!!.toString())
+                Toast.makeText(this@KategoriActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
                 swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             } catch (e: HttpException) {
-                Log.e("MainActivity", "HttpException, Salah Link dak wak??, tak ade response")
-                Toast.makeText(this@MainActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
+                Log.e("KategoriActivity", "HttpException, Salah Link dak wak??, tak ade response")
+                Toast.makeText(this@KategoriActivity, "Terjadi Error", Toast.LENGTH_LONG).show()
                 swipeRefresh.isRefreshing = false
                 return@launchWhenStarted
             }
@@ -122,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                         }.await()
                     }
                     refreshContent()
-                    Toast.makeText(this@MainActivity, "Data Berhasil di Tambahkan", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@KategoriActivity, "Data Berhasil di Tambahkan", Toast.LENGTH_LONG).show()
                 }else{
                     db.bukuDao().deleteAllBuku()
                     val path = baseContext.filesDir
@@ -140,17 +139,17 @@ class MainActivity : AppCompatActivity() {
                         }.await()
                     }
                     refreshContent()
-                    Toast.makeText(this@MainActivity, "Data Berhasil di Update", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@KategoriActivity, "Data Berhasil di Update", Toast.LENGTH_LONG).show()
                 }
             } else {
-                Log.e("MainActivity", "Response gagal pulak wak.. Payah kadang")
+                Log.e("KategoriActivity", "Response gagal pulak wak.. Payah kadang")
             }
             swipeRefresh.isRefreshing = false
         }
     }
 
     private fun refreshContent(){
-        val intent = Intent(this@MainActivity, KelasActivity::class.java)
+        val intent = Intent(this@KategoriActivity, KelasActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
         startActivity(intent)
@@ -182,5 +181,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 }

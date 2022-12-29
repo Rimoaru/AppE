@@ -4,11 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Surah(
+data class Buku(
     @PrimaryKey
     val id: String,
-    val nama_surah: String,
-    val jml_ayat: Int,
+    val judul_buku: String,
+    val kategori: String,
+    val kelas: String,
     val `file`: String,
     val time: String
 )
