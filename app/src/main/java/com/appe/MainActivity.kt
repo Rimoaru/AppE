@@ -1,15 +1,12 @@
 package com.appe
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Layout
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -17,15 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.appe.ToolsObject.updateData
 import com.appe.db_room.BukuDB
-import com.appe.retrofit.RetrofitInstance
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import retrofit2.HttpException
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.net.URL
 
 class MainActivity : AppCompatActivity() {
     private val db by lazy {

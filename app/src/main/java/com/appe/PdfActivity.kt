@@ -39,6 +39,6 @@ class PdfActivity : AppCompatActivity() {
             }
             progressBar.isVisible = false
         }
-        Toast.makeText(this, "File Berhail diBuka", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "File Berhail diBuka", Toast.LENGTH_SHORT).show()
     }
 }
